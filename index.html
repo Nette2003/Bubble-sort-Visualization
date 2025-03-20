@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble Sort Visualization</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --primary-dark: #3730a3;
+            --secondary: #10b981;
+            --background: #f9fafb;
+            --foreground: #1f2937;
+            --card: #ffffff;
+            --border: #e5e7eb;
+            --muted: #6b7280;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            background-color: var(--card);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+
+        nav a {
+            color: var(--foreground);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        .card {
+            background-color: var(--card);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--foreground);
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--muted);
+        }
+
+        input, select {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            width: 100%;
+            font-size: 0.875rem;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.25rem;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        button:disabled {
+            background-color: var(--muted);
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background-color: #0d9669;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .visualization {
+            height: 300px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 2px;
+            margin-bottom: 1.5rem;
+        }
+
+        .bar {
+            background-color: var(--primary-light);
+            transition: height 0.2s ease-in-out, background-color 0.2s ease-in-out;
+        }
+
+        .bar.active {
+            background-color: var(--secondary);
+        }
+
+        .bar.sorted {
+            background-color: var(--primary);
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-card {
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .metric-card h3 {
+            font-size: 0.875rem;
+            color: var(--muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-card p {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .code-section {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+        }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            white-space: pre;
+        }
+
+        .explanation {
+            margin-bottom: 1.5rem;
+        }
+
+        .explanation h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .explanation p {
+            margin-bottom: 1rem;
+        }
+
+        footer {
+            background-color: var(--card);
+            padding: 1.5rem 0;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        footer .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        footer p {
+            font-size: 0.875rem;
+            color: var(--muted);
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .form-group {
+                width: 100%;
+            }
+
+            footer .container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Bubble Sort Visualization</h1>
+            <nav>
+                <ul>
+                    <li><a href="#visualization">Visualization</a></li>
+                    <li><a href="#code">Code</a></li>
+                    <li><a href="#explanation">Explanation</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="visualization" class="card">
+            <h2>Visualization</h2>
+            <div class="controls">
+                <div class="form-group">
+                    <label for="array-size">Array Size</label>
+                    <input type="number" id="array-size" min="5" max="100" value="20">
+                </div>
+                <div class="form-group">
+                    <label for="speed">Animation Speed</label>
+                    <select id="speed">
+                        <option value="50">Very Fast</option>
+                        <option value="100">Fast</option>
+                        <option value="200" selected>Medium</option>
+                        <option value="400">Slow</option>
+                        <option value="800">Very Slow</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="algorithm">Algorithm</label>
+                    <select id="algorithm">
+                        <option value="bubble" selected>Bubble Sort</option>
+                        <option value="optimized">Optimized Bubble Sort</option>
+                    </select>
+                </div>
+                <button id="generate" class="btn-secondary">Generate New Array</button>
+                <button id="sort">Sort</button>
+                <button id="pause" disabled>Pause</button>
+                <button id="reset" class="btn-outline">Reset</button>
+            </div>
+
+            <div class="visualization" id="array-container"></div>
+
+            <div class="metrics">
+                <div class="metric-card">
+                    <h3>Comparisons</h3>
+                    <p id="comparisons">0</p>
+                </div>
+                <div class="metric-card">
+                    <h3>Swaps</h3>
+                    <p id="swaps">0</p>
+                </div>
+                <div class="metric-card">
+                    <h3>Time Elapsed</h3>
+                    <p id="time">0.00s</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="code" class="card">
+            <h2>Implementation</h2>
+            <div class="code-section">
+                <code>
+/**
+ * Bubble Sort Implementation
+ * @param {Array} arr - The array to be sorted
+ * @returns {Object} - Statistics about the sorting process
+ */
+function bubbleSort(arr) {
+    const stats = { comparisons: 0, swaps: 0 };
+    const n = arr.length;
+    
+    for (let i = 0; i < n - 1; i++) {
+        for (let j = 0; j < n - i - 1; j++) {
+            stats.comparisons++;
+            if (arr[j] > arr[j + 1]) {
+                // Swap elements
+                [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+                stats.swaps++;
+            }
+        }
+    }
+    
+    return stats;
+}
+
+/**
+ * Optimized Bubble Sort Implementation
+ * @param {Array} arr - The array to be sorted
+ * @returns {Object} - Statistics about the sorting process
+ */
+function optimizedBubbleSort(arr) {
+    const stats = { comparisons: 0, swaps: 0 };
+    const n = arr.length;
+    
+    for (let i = 0; i < n - 1; i++) {
+        let swapped = false;
+        
+        for (let j = 0; j < n - i - 1; j++) {
+            stats.comparisons++;
+            if (arr[j] > arr[j + 1]) {
+                // Swap elements
+                [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+                stats.swaps++;
+                swapped = true;
+            }
+        }
+        
+        // If no swapping occurred in this pass, array is sorted
+        if (!swapped) break;
+    }
+    
+    return stats;
+}
+                </code>
+            </div>
+        </section>
+
+        <section id="explanation" class="card">
+            <h2>Algorithm Explanation</h2>
+            <div class="explanation">
+                <h3>What is Bubble Sort?</h3>
+                <p>Bubble Sort is a simple sorting algorithm that repeatedly steps through the list, compares adjacent elements, and swaps them if they are in the wrong order. The pass through the list is repeated until the list is sorted.</p>
+                
+                <h3>How it Works</h3>
+                <p>The algorithm works by comparing each pair of adjacent items and swapping them if they are in the wrong order. This process is repeated until no more swaps are needed, which indicates that the list is sorted.</p>
+                
+                <h3>Time Complexity</h3>
+                <p>Bubble Sort has a worst-case and average time complexity of O(n²), where n is the number of items being sorted. This makes it inefficient on large lists, but it's simple to understand and implement.</p>
+                
+                <h3>Optimized Version</h3>
+                <p>The optimized version of Bubble Sort stops early if the list becomes sorted during the algorithm. This can significantly improve performance for nearly sorted lists.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2025 Bubble Sort Visualization</p>
+            <p>Created with ❤️ by a passionate developer</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const arrayContainer = document.getElementById('array-container');
+        const arraySizeInput = document.getElementById('array-size');
+        const speedSelect = document.getElementById('speed');
+        const algorithmSelect = document.getElementById('algorithm');
+        const generateBtn = document.getElementById('generate');
+        const sortBtn = document.getElementById('sort');
+        const pauseBtn = document.getElementById('pause');
+        const resetBtn = document.getElementById('reset');
+        const comparisonsEl = document.getElementById('comparisons');
+        const swapsEl = document.getElementById('swaps');
+        const timeEl = document.getElementById('time');
+
+        // Global Variables
+        let array = [];
+        let arrayBars = [];
+        let sortingInProgress = false;
+        let sortingPaused = false;
+        let sortingInterval = null;
+        let startTime = 0;
+        let timeInterval = null;
+        let comparisons = 0;
+        let swaps = 0;
+
+        // Initialize visualization
+        function initializeArray() {
+            const size = parseInt(arraySizeInput.value);
+            array = Array.from({length: size}, () => Math.floor(Math.random() * 100) + 1);
+            renderArray();
+            resetStats();
+        }
+
+        // Render array as bars
+        function renderArray() {
+            arrayContainer.innerHTML = '';
+            arrayBars = [];
+            
+            const maxValue = Math.max(...array);
+            const containerWidth = arrayContainer.clientWidth;
+            const barWidth = Math.floor((containerWidth / array.length) * 0.8);
+            
+            array.forEach((value, index) => {
+                const bar = document.createElement('div');
+                bar.classList.add('bar');
+                bar.style.height = `${(value / maxValue) * 100}%`;
+                bar.style.width = `${barWidth}px`;
+                arrayContainer.appendChild(bar);
+                arrayBars.push(bar);
+            });
+        }
+
+        // Reset statistics
+        function resetStats() {
+            comparisons = 0;
+            swaps = 0;
+            comparisonsEl.textContent = '0';
+            swapsEl.textContent = '0';
+            timeEl.textContent = '0.00s';
+            clearInterval(timeInterval);
+        }
+
+        // Update statistics
+        function updateStats() {
+            comparisonsEl.textContent = comparisons.toString();
+            swapsEl.textContent = swaps.toString();
+        }
+
+        // Start timer
+        function startTimer() {
+            startTime = Date.now();
+            timeInterval = setInterval(() => {
+                const elapsedTime = (Date.now() - startTime) / 1000;
+                timeEl.textContent = `${elapsedTime.toFixed(2)}s`;
+            }, 10);
+        }
+
+        // Visualize bubble sort
+        async function visualizeBubbleSort() {
+            const n = array.length;
+            const delay = parseInt(speedSelect.value);
+            const useOptimized = algorithmSelect.value === 'optimized';
+            
+            sortingInProgress = true;
+            sortBtn.disabled = true;
+            pauseBtn.disabled = false;
+            resetBtn.disabled = true;
+            generateBtn.disabled = true;
+            
+            startTimer();
+            
+            for (let i = 0; i < n - 1; i++) {
+                let swapped = false;
+                
+                for (let j = 0; j < n - i - 1; j++) {
+                    // Wait if sorting is paused
+                    while (sortingPaused) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
+                    
+                    // Highlight current bars being compared
+                    arrayBars[j].classList.add('active');
+                    arrayBars[j + 1].classList.add('active');
+                    
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    
+                    comparisons++;
+                    updateStats();
+                    
+                    if (array[j] > array[j + 1]) {
+                        // Swap elements
+                        [array[j], array[j + 1]] = [array[j + 1], array[j]];
+                        
+                        // Swap heights
+                        const tempHeight = arrayBars[j].style.height;
+                        arrayBars[j].style.height = arrayBars[j + 1].style.height;
+                        arrayBars[j + 1].style.height = tempHeight;
+                        
+                        swaps++;
+                        swapped = true;
+                        updateStats();
+                    }
+                    
+                    // Remove highlight
+                    arrayBars[j].classList.remove('active');
+                    arrayBars[j + 1].classList.remove('active');
+                }
+                
+                // Mark the last n-i-1 elements as sorted
+                arrayBars[n - i - 1].classList.add('sorted');
+                
+                // If no swapping occurred in this pass, array is sorted (optimized version)
+                if (useOptimized && !swapped) {
+                    // Mark remaining elements as sorted
+                    for (let k = 0; k < n - i - 1; k++) {
+                        arrayBars[k].classList.add('sorted');
+                    }
+                    break;
+                }
+            }
+            
+            // Mark the first element as sorted (it might not be marked yet)
+            arrayBars[0].classList.add('sorted');
+            
+            clearInterval(timeInterval);
+            sortingInProgress = false;
+            sortBtn.disabled = false;
+            pauseBtn.disabled = true;
+            resetBtn.disabled = false;
+            generateBtn.disabled = false;
+        }
+
+        // Event Listeners
+        generateBtn.addEventListener('click', initializeArray);
+
+        sortBtn.addEventListener('click', () => {
+            if (!sortingInProgress) {
+                visualizeBubbleSort();
+            }
+        });
+
+        pauseBtn.addEventListener('click', () => {
+            sortingPaused = !sortingPaused;
+            pauseBtn.textContent = sortingPaused ? 'Resume' : 'Pause';
+        });
+
+        resetBtn.addEventListener('click', () => {
+            sortingPaused = false;
+            pauseBtn.textContent = 'Pause';
+            pauseBtn.disabled = true;
+            sortBtn.disabled = false;
+            generateBtn.disabled = false;
+            
+            arrayBars.forEach(bar => {
+                bar.classList.remove('active');
+                bar.classList.remove('sorted');
+            });
+            
+            resetStats();
+        });
+
+        arraySizeInput.addEventListener('change', () => {
+            if (!sortingInProgress) {
+                initializeArray();
+            }
+        });
+
+        // Initialize the visualization
+        window.addEventListener('load', initializeArray);
+        window.addEventListener('resize', renderArray);
+    </script>
+</body>
+</html>
